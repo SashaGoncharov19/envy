@@ -26,13 +26,13 @@ The goal is to evolve Envy from a simple TCP listener into a capable static file
 - [x] Custom logging implementation with `chrono`.
 - [x] Fault tolerance: Auto-creation of configuration files.
 
-### Phase 2: HTTP Parsing & Static Content (Current Focus) 🚧
+### Phase 2: HTTP Parsing & Static Content ✅
 - [x] **Request Parsing:** Extracting HTTP Method (GET), URI, and Version.
 - [x] **Static File Serving:** Reading and serving files from the `root_dir`.
 - [x] **MIME Types:** Automatic detection of content types (`.html`, `.css`, `.png`, etc.).
 - [x] **Response Construction:** Proper formatting of HTTP 200/404 headers and body.
 
-### Phase 3: Performance & Security 🔜
+### Phase 3: Performance & Security (Current Focus) 🚧
 - [ ] **Thread Pool:** Implementing a fixed-size thread pool to prevent DoS via resource exhaustion.
 - [ ] **Security:** Path traversal protection (preventing access outside `root_dir`).
 - [ ] **Graceful Shutdown:** Handling signals (Ctrl+C) to close sockets cleanly.
