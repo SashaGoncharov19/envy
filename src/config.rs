@@ -1,13 +1,17 @@
 use crate::logger;
+
 use serde::{Deserialize, Serialize};
 use std::fs;
+use std::sync::OnceLock;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Config {
     pub port: u16,
     pub address: String,
     pub root_dir: String,
 }
+
+static CONFIG: OnceLock<Config> = OnceLock::new();
 
 impl Default for Config {
     fn default() -> Self {
@@ -19,12 +23,15 @@ impl Default for Config {
     }
 }
 
-pub fn load(filename: &str) -> Config {
+pub fn load(filename: &str) {
     logger::log(&format!("Loading config from {}...", filename));
 
-    match fs::read_to_string(filename) {
+    let config = match fs::read_to_string(filename) {
         Ok(content) => toml::from_str(&content).unwrap_or_else(|e| {
-            panic!("{}", logger::format_msg(&format!("Failed to parse config: {}", e)))
+            panic!(
+                "{}",
+                logger::format_msg(&format!("Failed to parse config: {}", e))
+            )
         }),
         Err(_) => {
             let config = Config::default();
@@ -37,5 +44,13 @@ pub fn load(filename: &str) -> Config {
 
             config
         }
-    }
+    };
+
+    CONFIG
+        .set(config)
+        .expect("Config has already been initialized!");
+}
+
+pub fn get() -> &'static Config {
+    CONFIG.get().unwrap()
 }
