@@ -1,7 +1,7 @@
 # Envy
 
 ![Language](https://img.shields.io/badge/language-Rust-orange?style=flat-square)
-![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
+![License](https://img.shields.io/badge/license-BSD_2_Clause-blue?style=flat-square)
 ![Status](https://img.shields.io/badge/status-active_development-green?style=flat-square)
 
 **Envy** is a lightweight, multi-threaded web server written in Rust.
