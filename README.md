@@ -17,7 +17,7 @@ Inspired by Nginx, this project is built from scratch to explore the low-level i
 
 ## 🗺️ Roadmap
 
-The goal is to evolve Envy from a simple TCP listener into a capable static file server.
+The goal is to evolve Envy into a high-performance static file server capable of rivaling Nginx in throughput and latency.
 
 ### Phase 1: Foundation (Core Networking) ✅
 - [x] TCP Listener initialization.
@@ -32,14 +32,29 @@ The goal is to evolve Envy from a simple TCP listener into a capable static file
 - [x] **MIME Types:** Automatic detection of content types (`.html`, `.css`, `.png`, etc.).
 - [x] **Response Construction:** Proper formatting of HTTP 200/404 headers and body.
 
-### Phase 3: Performance & Security (Current Focus) 🚧
-- [ ] **Thread Pool:** Implementing a fixed-size thread pool to prevent DoS via resource exhaustion.
-- [ ] **Security:** Path traversal protection (preventing access outside `root_dir`).
-- [ ] **Graceful Shutdown:** Handling signals (Ctrl+C) to close sockets cleanly.
+### Phase 3: Concurrency & Stability (Current Focus) 🚧
+Goal: Move away from "Thread-per-Request" to handle thousands of concurrent connections without crashing.
 
-### Phase 4: Future Improvements 🔮
-- [ ] **Async I/O:** Migration to `Tokio` for non-blocking operations.
-- [ ] **Virtual Hosts:** Support for multiple domains on a single port.
+- [ ] **Thread Pool:** Implementing a fixed-size thread pool (Worker Model) to eliminate the overhead of spawning new threads for every request.
+- [ ] **HTTP Keep-Alive**: Support for persistent connections (Connection: keep-alive) to reuse TCP sockets for multiple requests.
+- [ ] **Security:** Path traversal protection (preventing access outside root_dir).
+- [ ] **Graceful Shutdown:** Handling signals (Ctrl+C) to finish active requests before closing.
+
+### Phase 4: Zero-Copy & I/O Optimization
+
+Goal: Minimize CPU usage and memory copying to achieve maximum throughput.
+
+- [ ] **Zero-Copy Architecture:** Implementing sendfile (syscall) to stream files directly from disk to the network socket, bypassing CPU and user-space memory entirely.
+- [ ] **In-Memory Caching (LRU):** Caching hot files in RAM to avoid disk I/O for frequently accessed resources.
+- [ ] **Buffer Pooling:** Reusing memory buffers instead of allocating new arrays for every request (reducing Heap allocations).
+
+### Phase 5: Asynchronous Architecture
+
+Goal: Non-blocking I/O to handle 10k+ concurrent connections on a single thread.
+
+- [ ] **Async Migration:** Rewriting the core loop using Tokio or Mio (Non-blocking I/O).
+- [ ] **Compression:** On-the-fly Gzip/Brotli compression to reduce bandwidth usage.
+- [ ] **Benchmarks:** Automated comparison tests against Nginx using `wrk` or `ab`.
 
 ## 🚀 Getting Started
 
