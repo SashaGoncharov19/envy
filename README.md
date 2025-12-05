@@ -37,7 +37,7 @@ Goal: Move away from "Thread-per-Request" to handle thousands of concurrent conn
 
 - [ ] **Thread Pool:** Implementing a fixed-size thread pool (Worker Model) to eliminate the overhead of spawning new threads for every request.
 - [ ] **HTTP Keep-Alive**: Support for persistent connections (Connection: keep-alive) to reuse TCP sockets for multiple requests.
-- [ ] **Security:** Path traversal protection (preventing access outside root_dir).
+- [x] **Security:** Path traversal protection (preventing access outside root_dir).
 - [ ] **Graceful Shutdown:** Handling signals (Ctrl+C) to finish active requests before closing.
 
 ### Phase 4: Zero-Copy & I/O Optimization

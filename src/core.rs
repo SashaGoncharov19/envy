@@ -2,7 +2,10 @@ use std::fs;
 use std::path::PathBuf;
 
 use mime_guess;
+
 use crate::logger;
+use crate::response;
+use crate::response::Status;
 
 pub fn normalize_request(request: &str) -> (&str, &str, &str) {
     let lines: Vec<&str> = request.lines().collect();
@@ -24,33 +27,30 @@ pub fn normalize_request(request: &str) -> (&str, &str, &str) {
     (method, path, http_v)
 }
 
-pub fn get_file_content(path: &str, root_dir: &String) -> (Vec<u8>, String, i16, String) {
-    let mut full_path = PathBuf::from(&root_dir);
+pub fn get_file_content(path: &str, root_dir: &String) -> (Vec<u8>, String, Status) {
+    let root_path = PathBuf::from(&root_dir).canonicalize().unwrap();
+    let mut intended_path = PathBuf::from(root_dir);
 
     if path == "/" {
-        full_path.push("index.html");
+        intended_path.push("index.html");
     } else {
-        full_path.push(path.trim_start_matches("/"));
+        intended_path.push(path.trim_start_matches("/"));
     }
 
-    let mime = mime_guess::from_path(&full_path).first_or_octet_stream();
+    match intended_path.canonicalize() {
+        Ok(absolute_file_path) => {
+            if absolute_file_path.starts_with(&root_path) {
+                let mime = mime_guess::from_path(&root_path).first_or_octet_stream();
 
-    match fs::read(&full_path) {
-        Ok(content) => (
-            content,
-            mime.to_string(),
-            200,
-            "OK".to_string(),
-        ),
-        Err(_) => {
-            let err_msg = format!("[ERROR] File not found: {:?}", full_path);
-            logger::log(&err_msg);
-            (
-                err_msg.into_bytes(),
-                "text/plain".to_string(),
-                404,
-                "Not Found".to_string(),
-            )
+                match fs::read(&absolute_file_path) {
+                    Ok(content) => response::success(content, mime.to_string(), Status::Success),
+                    Err(_) => response::error(Status::InternalServerError, Some("File exists but unreadable")),
+                }
+            } else {
+                logger::log(&format!("[SECURITY] Blocked path traversal attempt: {:?}", path));
+                response::error(Status::Forbidden, None)
+            }
         }
+        Err(_) => response::error(Status::NotFound, None),
     }
 }

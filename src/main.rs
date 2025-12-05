@@ -5,6 +5,7 @@ use std::thread;
 mod config;
 mod core;
 mod logger;
+mod response;
 
 const CONFIG_FILE: &str = "config.toml";
 
@@ -46,12 +47,12 @@ fn handle_client(mut stream: std::net::TcpStream) {
 
     logger::log(&format!("[INFO] Received: {} {} {}", method, path, http_v));
 
-    let (body, content_type, code, message) = core::get_file_content(path, &config::get().root_dir);
+    let (body, content_type, status) = core::get_file_content(path, &config::get().root_dir);
 
     let headers = format!(
         "HTTP/1.1 {} {}\r\nContent-Length: {}\r\nContent-Type: {}\r\n\r\n",
-        code,
-        message,
+        status.as_u16(),
+        status.reason(),
         body.len(),
         content_type
     );
